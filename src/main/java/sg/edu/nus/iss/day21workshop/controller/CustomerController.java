@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import sg.edu.nus.iss.day21workshop.models.Customer;
-import sg.edu.nus.iss.day21workshop.models.Order;
 import sg.edu.nus.iss.day21workshop.service.CustomerService;
 
 @RestController
