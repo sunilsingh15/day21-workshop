@@ -1,11 +1,14 @@
 package sg.edu.nus.iss.day21workshop.controller;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,8 +24,20 @@ public class CustomerController {
     CustomerService customerService;
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Customer>> getAllCustomers(@RequestParam(required = false, defaultValue="0") int offset, @RequestParam(required = false, defaultValue = "5") int limit) {
+    public ResponseEntity<List<Customer>> getAllCustomers(
+            @RequestParam(required = false, defaultValue = "0") int offset,
+            @RequestParam(required = false, defaultValue = "5") int limit) {
         return ResponseEntity.ok().body(customerService.getAllCustomers(offset, limit));
     }
-    
+
+    @GetMapping("{customerID}")
+    public ResponseEntity<?> getCustomerByID(@PathVariable("customerID") int id) {
+        try {
+            Customer customer = customerService.getCustomerByID(id);
+            return ResponseEntity.ok().body(customer);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"error\": \"" + e.getMessage() + "\"}");
+        }
+    }
+
 }

@@ -3,8 +3,11 @@ package sg.edu.nus.iss.day21workshop.repository;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
@@ -18,6 +21,7 @@ public class CustomerRepository {
     JdbcTemplate template;
 
     private final String getAllSQL = "select * from customers limit ? offset ?";
+    private final String getCustomerByID = "select * from customers where id = ?";
 
     public List<Customer> getAllCustomers(int offset, int limit) {
         List<Customer> customerList = new ArrayList<>();
@@ -49,6 +53,18 @@ public class CustomerRepository {
         }
 
         return Collections.unmodifiableList(customerList);
+    }
+
+    public Customer findCustomerByID(int id) {
+        Customer customer = new Customer();
+        
+        try {
+            customer = template.queryForObject(getCustomerByID, BeanPropertyRowMapper.newInstance(Customer.class), id);
+        } catch (EmptyResultDataAccessException e) {
+            throw new NoSuchElementException("Customer not found with ID: " + id);
+        }
+
+        return customer;
     }
     
 }
