@@ -1,4 +1,4 @@
-package sg.edu.nus.iss.day21workshop.model;
+package sg.edu.nus.iss.day21workshop.models;
 
 public class Customer {
 

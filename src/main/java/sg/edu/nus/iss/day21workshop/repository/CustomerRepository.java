@@ -12,7 +12,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 
-import sg.edu.nus.iss.day21workshop.model.Customer;
+import sg.edu.nus.iss.day21workshop.models.Customer;
+import sg.edu.nus.iss.day21workshop.models.Order;
 
 @Repository
 public class CustomerRepository {
@@ -22,6 +23,8 @@ public class CustomerRepository {
 
     private final String getAllSQL = "select * from customers limit ? offset ?";
     private final String getCustomerByID = "select * from customers where id = ?";
+    private final String checkIfCustomerExists = "select id from customers where id = ?";
+    private final String getOrderByCustomerID = "select * from orders where customer_id = ?";
 
     public List<Customer> getAllCustomers(int offset, int limit) {
         List<Customer> customerList = new ArrayList<>();
@@ -57,7 +60,7 @@ public class CustomerRepository {
 
     public Customer findCustomerByID(int id) {
         Customer customer = new Customer();
-        
+
         try {
             customer = template.queryForObject(getCustomerByID, BeanPropertyRowMapper.newInstance(Customer.class), id);
         } catch (EmptyResultDataAccessException e) {
@@ -66,5 +69,51 @@ public class CustomerRepository {
 
         return customer;
     }
-    
+
+    public List<Order> findOrdersByCustomerID(int id) {
+
+        List<Order> orderList = new ArrayList<>();
+        SqlRowSet check = template.queryForRowSet(checkIfCustomerExists, id);
+
+        if (!check.next()) {
+            throw new NoSuchElementException("Customer with ID " + id + " does not exist!");
+        } else {
+            try {
+                SqlRowSet rs = template.queryForRowSet(getOrderByCustomerID, id);
+
+                while (rs.next()) {
+                    Order order = new Order();
+                    order.setId(rs.getInt("id"));
+                    order.setEmployeeID(rs.getInt("employee_id"));
+                    order.setCustomerID(rs.getInt("customer_id"));
+                    order.setOrderDate(rs.getString("order_date"));
+                    order.setShippedDate(rs.getString("shipped_date"));
+                    order.setShipperID(rs.getInt("shipper_id"));
+                    order.setShipName(rs.getString("ship_name"));
+                    order.setShipAddress(rs.getString("ship_address"));
+                    order.setShipCity(rs.getString("ship_city"));
+                    order.setShipStateProvince(rs.getString("ship_state_province"));
+                    order.setShipZipPostalCode(rs.getString("ship_zip_postal_code"));
+                    order.setShipCountryRegion(rs.getString("ship_country_region"));
+                    order.setShippingFee(rs.getString("shipping_fee"));
+                    order.setTaxes(rs.getString("taxes"));
+                    order.setPaymentType(rs.getString("payment_type"));
+                    order.setPaidDate(rs.getString("paid_date"));
+                    order.setNotes(rs.getString("notes"));
+                    order.setTaxRate(rs.getString("tax_rate"));
+                    order.setTaxStatusID(rs.getInt("tax_status_id"));
+                    order.setStatusID(rs.getInt("status_id"));
+
+                    orderList.add(order);
+                }
+
+            } catch (EmptyResultDataAccessException e) {
+                throw new NoSuchElementException("No orders found with customer ID:" + id);
+            }
+
+        }
+
+        return orderList;
+    }
+
 }

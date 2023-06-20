@@ -13,7 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import sg.edu.nus.iss.day21workshop.model.Customer;
+import sg.edu.nus.iss.day21workshop.models.Customer;
+import sg.edu.nus.iss.day21workshop.models.Order;
 import sg.edu.nus.iss.day21workshop.service.CustomerService;
 
 @RestController
@@ -30,11 +31,21 @@ public class CustomerController {
         return ResponseEntity.ok().body(customerService.getAllCustomers(offset, limit));
     }
 
-    @GetMapping("{customerID}")
+    @GetMapping(path = "{customerID}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getCustomerByID(@PathVariable("customerID") int id) {
         try {
             Customer customer = customerService.getCustomerByID(id);
             return ResponseEntity.ok().body(customer);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"error\": \"" + e.getMessage() + "\"}");
+        }
+    }
+
+    @GetMapping(path = "{customerID}/orders", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getCustomerOrdersByID(@PathVariable("customerID") int id) {
+
+        try {
+            return ResponseEntity.ok().body(customerService.getOrdersByCustomerID(id));
         } catch (NoSuchElementException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"error\": \"" + e.getMessage() + "\"}");
         }

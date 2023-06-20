@@ -6,7 +6,8 @@ import java.util.NoSuchElementException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import sg.edu.nus.iss.day21workshop.model.Customer;
+import sg.edu.nus.iss.day21workshop.models.Customer;
+import sg.edu.nus.iss.day21workshop.models.Order;
 import sg.edu.nus.iss.day21workshop.repository.CustomerRepository;
 
 @Service
@@ -28,6 +29,16 @@ public class CustomerService {
             throw new NoSuchElementException("Customer not found with ID: " + id);
         }
 
+    }
+
+    public List<Order> getOrdersByCustomerID(int id) {
+
+        try {
+            return customerRepo.findOrdersByCustomerID(id);
+        } catch (NoSuchElementException e) {
+            throw new NoSuchElementException("Customer with ID " + id + " does not exist!");
+        }
+        
     }
 
 }
